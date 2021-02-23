@@ -1,0 +1,33 @@
+#%RAML 1.0 DataType
+
+type: object
+properties:
+  complaints:
+    type: object[]
+    items:
+      type: object
+      properties:                
+          complaintNumber: integer
+          complaintDescription: string
+          active: boolean
+          customerDetails: 
+            type: object
+            properties:
+              customerNumber: integer
+              customerName: string
+              customerEmail: string
+          orderDetails: 
+            type: object
+            properties:
+              orderId: integer
+              orderDate: date-only
+          productDetails:
+            type: object
+            properties:
+                productId: string
+                productName: string
+                productCost: integer
+      
+            
+          
+          

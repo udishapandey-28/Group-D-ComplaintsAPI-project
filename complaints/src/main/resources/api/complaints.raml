@@ -1,0 +1,260 @@
+#%RAML 1.0
+title: complaints
+
+types:
+  getComplaintType: !include dataType/getComplaintsDataType.raml
+  postComplaintType: !include dataType/postComplaintDataType.raml
+  patchComplaintType: !include dataType/patchComplaintDataType.raml
+
+/complaints:
+  get:
+    displayName: getComplaints
+    description: get list of complaints
+    headers: 
+      Request-Id:
+        displayName: Request-Id
+        description: id of the person requesting the accounts information
+        type: string
+        required: true
+        default: RId-1001
+    queryParameters:
+      customerNumber: 
+        type: string
+        required: false
+      orderNumber:
+        type: string
+        required: false
+      orderDate: 
+        type: date-only
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            type: getComplaintType
+            example:
+              !include examples/getComplaintsExample.raml
+      404:
+          body:
+            application/json:
+              example:
+                message: Complaint not found
+
+      405:
+        body:
+          application/json:
+            example:
+              message: Method not Allowed
+
+      400:
+        body:
+          application/json:
+            example:
+              message: Bad Request
+
+      500:
+        body:
+          application/json:
+            example:
+              message: Internal server error
+
+      502:
+        body:
+          application/json:
+            example:
+              message: Bad gateway
+
+  post:
+    displayName: postComplaints
+    description: insert complaints
+    headers: 
+      Request-Id:
+        displayName: Request-Id
+        description: id of the person requesting the accounts information
+        type: string
+        required: true
+        default: RId-1001
+    body:
+      application/json:
+        type: postComplaintType
+        example: !include examples/postComplaintExample.raml
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              message: complaint registered with complaint id 007
+      404:
+          body:
+            application/json:
+              example:
+                message: Complaint not found
+
+      405:
+        body:
+          application/json:
+            example:
+              message: Method not Allowed
+
+      400:
+        body:
+          application/json:
+            example:
+              message: Bad Request
+
+      500:
+        body:
+          application/json:
+            example:
+              message: Internal server error
+
+      502:
+        body:
+          application/json:
+            example:
+              message: Bad gateway
+  /{complaintsNumber}:
+    get:
+      headers: 
+        Request-Id:
+          displayName: Request-Id
+          description: id of the person requesting the accounts information
+          type: string
+          required: true
+          default: RId-1001
+      responses:
+        200:
+          body:
+            application/json:
+              type: getComplaintType
+              example:
+                !include examples/getComplaintsExample.raml
+        404:
+          body:
+            application/json:
+              example:
+                message: Complaint not found
+
+        405:
+          body:
+            application/json:
+              example:
+                message: Method not Allowed
+
+        400:
+          body:
+            application/json:
+              example:
+                message: Bad Request
+
+        500:
+          body:
+            application/json:
+              example:
+                message: Internal server error
+
+        502:
+          body:
+            application/json:
+              example:
+                message: Bad gateway
+              
+    patch:
+      displayName: patchComplaints
+      description: update complaints
+      headers: 
+        Request-Id:
+          displayName: Request-Id
+          description: id of the person requesting the accounts information
+          type: string
+          required: true
+          default: RId-1001
+      body:
+        application/json:
+          type: patchComplaintType
+          example: !include examples/patchComplaintExample.raml
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Complaint updated
+        404:
+          body:
+            application/json:
+              example:
+                message: Complaint not found
+
+        405:
+          body:
+            application/json:
+              example:
+                message: Method not Allowed
+
+        400:
+          body:
+            application/json:
+              example:
+                message: Bad Request
+
+        500:
+          body:
+            application/json:
+              example:
+                message: Internal server error
+
+        502:
+          body:
+            application/json:
+              example:
+                message: Bad gateway
+    delete:
+      displayName: deleteComplaints
+      description: delete complaints
+      headers: 
+        Request-Id:
+          displayName: Request-Id
+          description: id of the person requesting the accounts information
+          type: string
+          required: true
+          default: RId-1001
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                message: Complaint deleted
+        404:
+          body:
+            application/json:
+              example:
+                message: Complaint not found
+
+        405:
+          body:
+            application/json:
+              example:
+                message: Method not Allowed
+
+        400:
+          body:
+            application/json:
+              example:
+                message: Bad Request
+
+        500:
+          body:
+            application/json:
+              example:
+                message: Internal server error
+
+        502:
+          body:
+            application/json:
+              example:
+                message: Bad gateway
+      
+
+      
+        
+              

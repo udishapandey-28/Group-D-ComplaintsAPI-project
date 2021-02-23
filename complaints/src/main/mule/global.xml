@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:customers="http://www.mulesoft.org/schema/mule/customers"
+	xmlns:orders-api="http://www.mulesoft.org/schema/mule/orders-api" xmlns:products-system-api="http://www.mulesoft.org/schema/mule/products-system-api" xmlns:order-detail-api="http://www.mulesoft.org/schema/mule/order-detail-api" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/order-detail-api http://www.mulesoft.org/schema/mule/order-detail-api/current/mule-order-detail-api.xsd
+http://www.mulesoft.org/schema/mule/products-system-api http://www.mulesoft.org/schema/mule/products-system-api/current/mule-products-system-api.xsd
+http://www.mulesoft.org/schema/mule/orders-api http://www.mulesoft.org/schema/mule/orders-api/current/mule-orders-api.xsd
+http://www.mulesoft.org/schema/mule/customers http://www.mulesoft.org/schema/mule/customers/current/mule-customers.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="c7089764-1c8d-4f20-8596-5419078be3bc" file="config.yaml" />
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="1e085174-ae8a-41b3-863d-d1dc0718c4bc" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5dc9dcf8-148f-4d7b-be28-079e1bb280fd" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.username}" password="${db.password}" database="${db.database}" />
+	</db:config>
+	<customers:config name="Customers_Config" doc:name="Customers Config" doc:id="1cf10723-1bd2-4c48-afe2-6593fb43a0a0" property_host="${customer.host}" property_port="${customer.port}" property_protocol="${customer.protocol}" />
+	<order-detail-api:config name="OrderDetail_API_Config" doc:name="OrderDetail API Config" doc:id="eb3a31b4-bfb1-47ca-a593-3e847bd235a3" property_host="${orderDetail.host}" property_port="${orderDetail.port}" property_protocol="${orderDetail.protocol}" />
+	<orders-api:config name="Orders_API_Config" doc:name="Orders API Config" doc:id="65901f1a-6733-43e7-a612-63dc740e82a3" property_host="${order.host}" property_port="${order.port}" property_protocol="${order.protocol}" />
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="19ea5293-0e24-4475-bdd4-dce352865be7">
+		<email:smtp-connection host="${email.host}" port="${email.host}" user="${email.from}" password="${email.password}" >
+			<email:properties >
+				<email:property key="mail.smtp.starttls.enable" value="true" />
+			</email:properties>
+		</email:smtp-connection>
+	</email:smtp-config>
+	<products-system-api:config name="Products_System_API_Config" doc:name="Products System API Config" doc:id="29aef2ee-b6fa-4adb-b363-9abf56c90553" property_host="${product.host}" property_port="${product.port}" property_protocol="${product.protocol}"/>
+	<configuration doc:name="Configuration" doc:id="64d97fd0-6791-4b9b-a82e-9f02dbd135b0" defaultErrorHandler-ref="globalError_Handler" />
+	<error-handler name="globalError_Handler" doc:id="8c64aa76-42d3-447d-ae1c-b116286685dd" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="58a952bf-abe7-4c20-809f-5461263d93ab" >
+			<ee:transform doc:name="Transform Message" doc:id="03f70b84-e3cc-4583-a80e-2dc617748138" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message : error.description
+}]]></ee:set-payload>
+				</ee:message>
+				<ee:variables />
+			</ee:transform>
+		</on-error-propagate>
+	</error-handler>
+</mule>

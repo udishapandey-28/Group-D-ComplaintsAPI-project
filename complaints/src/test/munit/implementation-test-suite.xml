@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="implementation-test-suite.xml" />
+	<munit:test name="implementation-test-suite-getAllComplaintsTest" doc:id="91c3be17-f833-46ac-b06c-a3cdbff95f10" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to getAllComplaints" doc:id="f732dc3d-a28f-4e5c-b4a4-f3c35e8e7e6c" name="getAllComplaints"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="524cb020-2c3f-42b8-94ee-12c82558b25a" expression="#[payload]" is="#[MunitTools::notNullValue()]" message="payload is null"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-getComplaintByNumberTest" doc:id="b4160162-9c4a-4a74-acf9-9d3985c12c6a" description="Test" ignore="true">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="f7079961-b10b-407a-884d-d1034c88e9ca" >
+				<munit:attributes value="#[{uriParams: {complaintsNumber: '2'}}]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to getComplaintByNumber" doc:id="25d52899-043a-4784-80e3-b5ae0010e9bb" name="getComplaintByNumber"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="90f59f74-3595-45b3-b50d-87ddaf7ac640" expression="#[payload]" is="#[MunitTools::notNullValue()]" message="payload is correct"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-postComplaintTest" doc:id="c5ef2532-9f3f-4830-86de-608999413e69" description="Test">
+		<munit:behavior >
+			<munit:set-event doc:name="Set Event" doc:id="16c3785e-df06-4324-a31f-28b80998906e" >
+				<munit:payload value='#[output application/json&#10;---&#10;{&#10;    "orderNumber": 1242,&#10;    "complaintDescription": "chair is broken",&#10;    "productCode": "A-0001"&#10;}&#10;]' mediaType="application/json" />
+			</munit:set-event>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="249fbc4d-b2bf-49c5-a420-dcd08be0a442" processor="db:insert">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Insert" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="a109f0f5-b5dd-4557-ae02-efdf7b6dee16" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;{&#10;    "orderNumber": 1242,&#10;    "complaintDescription": "chair is broken",&#10;    "productCode": "A-0001"&#10;}&#10;]' mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="fe979ae9-3270-45e0-ad20-07a53a912a75" processor="email:send">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Send" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="b21b941a-9b09-4151-9a8c-9128e096b450" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="${email.from}" attributeName="fromAddress" />
+					<munit-tools:with-attribute whereValue="Email_SMTP" attributeName="config-ref" />
+					<munit-tools:with-attribute whereValue="mulesoft" attributeName="subject" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to postComplaint" doc:id="f2418864-887b-422c-b0aa-dcffa7d7356b" name="postComplaint"/>
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-equals doc:name="Assert equals" doc:id="3a6652ce-d078-4f1a-ae01-a3e6bd8577a7" actual="#[payload]" expected='#[{&#10;  "fileName": "Varmu V_42.txt",&#10;  "attachment": "Dear Varmu V , Your complaint for Product Sony-WB401 placed on date 2021-10-07T00:00:00 has been registered with complaint id : 42.As per your description the complaint registered is : chair is broken.Our representative will get in touch to resolve your complaints.Sorry for the inconvenience.Thanks.",&#10;  "email": "varmuvarun44@gmail.com"&#10;}]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="implementation-test-suite-updateComplaintTest" doc:id="50b91d46-e19a-45a2-91c2-e1e833fdb591" description="Test" ignore="true">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="1572a625-331e-4747-97e6-703aab675c63" >
+				<munit:payload value='#[output application/json&#10;---&#10;{&#10;   "complaintDescription": "chair is different than ordered"&#10;}&#10;]' mediaType="application/json" />
+				<munit:attributes value="#[{uriParams: {complaintsNumber: '42'}}]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to updateComplaint" doc:id="c6386638-d896-41cc-b70d-ec73af38bbe5" name="updateComplaint"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="82d0a4af-8636-455b-b34a-0cf233d52208" is="#[MunitTools::either(MunitTools::equalTo('message: &quot;Complaint resolved&quot;'), MunitTools::equalTo('message: &quot;Complaint invalid(already resolved)&quot;'))]" message="payload is correct" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

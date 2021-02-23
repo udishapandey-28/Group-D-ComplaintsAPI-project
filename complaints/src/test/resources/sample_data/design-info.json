@@ -1,0 +1,13 @@
+{
+  "sampleData": {
+    "831b7054-779d-41d2-8d61-b9af033c9cee": {
+      "payload": "sample_data/json.json"
+    },
+    "90c63783-6b61-491c-ab7e-bbd0754a6f8e": {
+      "payload": "sample_data/weave.dwl"
+    },
+    "60c13fcd-1159-4081-89ed-3aafa3426429": {
+      "payload": "sample_data/defaultnulltype.dwl"
+    }
+  }
+}

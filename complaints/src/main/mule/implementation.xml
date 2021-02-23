@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns:twilio="http://www.mulesoft.org/schema/mule/twilio"
+	xmlns:order-details-systems-api="http://www.mulesoft.org/schema/mule/order-details-systems-api"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:products-system-api="http://www.mulesoft.org/schema/mule/products-system-api" xmlns:orders-api="http://www.mulesoft.org/schema/mule/orders-api" xmlns:order-detail-api="http://www.mulesoft.org/schema/mule/order-detail-api" xmlns:customers="http://www.mulesoft.org/schema/mule/customers" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/customers http://www.mulesoft.org/schema/mule/customers/current/mule-customers.xsd
+http://www.mulesoft.org/schema/mule/order-detail-api http://www.mulesoft.org/schema/mule/order-detail-api/current/mule-order-detail-api.xsd
+http://www.mulesoft.org/schema/mule/orders-api http://www.mulesoft.org/schema/mule/orders-api/current/mule-orders-api.xsd
+http://www.mulesoft.org/schema/mule/products-system-api http://www.mulesoft.org/schema/mule/products-system-api/current/mule-products-system-api.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/order-details-systems-api http://www.mulesoft.org/schema/mule/order-details-systems-api/current/mule-order-details-systems-api.xsd
+http://www.mulesoft.org/schema/mule/twilio http://www.mulesoft.org/schema/mule/twilio/current/mule-twilio.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+	<flow name="getAllComplaints" doc:id="589ab853-1161-46d5-93a9-f0823b06b3ff">
+		<choice doc:name="Choice" doc:id="21f7093c-59d0-4aaa-bfa7-8eff8c8b571a" >
+			<when expression="#[vars.orderDate != null]">
+				<choice doc:name="Choice" doc:id="6b3c7dfb-3f66-4796-84a3-0565d1f47bc7">
+					<when expression="#[vars.orderNumber != null]">
+						<flow-ref doc:name="processComplaints" doc:id="9fc61e0e-e17f-4bd6-a430-7bb51311554a" name="processComplaints"/>
+						<ee:transform doc:name="Transform Message" doc:id="5653a8c0-bb46-4370-a30c-b7f6454239c5" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((item,index) -> (item.orderDetails.orderId  as String == vars.orderNumber as String)and(item.orderDetails.orderDate as DateTime as String {format:"yyyy-MM-dd"}==vars.orderDate as Date as String {format:"yyyy-MM-dd"}))]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</when>
+					<when expression="#[vars.customerNumber != null]" >
+						<flow-ref doc:name="processComplaints" doc:id="ec59a65e-b99c-4777-9945-97542161678b" name="processComplaints"/>
+						<ee:transform doc:name="Transform Message" doc:id="bc9a4ed5-9be5-4d21-aab9-b00b9146bc24" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((item,index) -> (item.customerDetails.customerNumber  as String == vars.customerNumber as String)and(item.orderDetails.orderDate as DateTime as String {format:"yyyy-MM-dd"}==vars.orderDate as Date as String {format:"yyyy-MM-dd"}))]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</when>
+					<otherwise >
+						<flow-ref doc:name="processComplaints" doc:id="a8f477de-247c-4ff9-8b3a-757564ced21c" name="processComplaints"/>
+						<ee:transform doc:name="Transform Message" doc:id="8ee274f1-208f-4c52-a552-57988956aa16" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((item,index) -> (item.orderDetails.orderDate as DateTime as String {format:"yyyy-MM-dd"}==vars.orderDate as Date as String {format:"yyyy-MM-dd"}))]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</otherwise>
+				</choice>
+			</when>
+			<when expression="#[vars.orderNumber != null]">
+				<flow-ref doc:name="processComplaints" doc:id="4482b2ec-6629-4d51-ac1c-7dfc78c2e1e7" name="processComplaints"/>
+				<ee:transform doc:name="Transform Message" doc:id="b8f3b9f9-2691-4a9e-b83c-58c9a40a9e1f">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((item,index) -> (item.orderDetails.orderId  as String == vars.orderNumber as String))]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<when expression="#[vars.customerNumber != null]">
+				<flow-ref doc:name="processComplaints" doc:id="84af9f75-0a7f-4504-91df-005f9fef117c" name="processComplaints"/>
+				<ee:transform doc:name="Transform Message" doc:id="45650049-cff5-4e11-a339-e3f1c42a0a21">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload filter((item,index) -> (item.customerDetails.customerNumber  as String == vars.customerNumber as String))]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<db:select doc:name="Select" doc:id="ef972385-3c39-4355-97d2-7bede119ea72" config-ref="Database_Config">
+					<db:sql ><![CDATA[select * from Complaints;]]></db:sql>
+				</db:select>
+				<ee:transform doc:name="Transform Message" doc:id="75bc6622-5a35-4865-9b09-5d21a77e2ca1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+//{
+//	message: "Request is invalid"
+//}
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+	<flow name="processComplaints" doc:id="d1f1fa8f-a713-4061-83c3-80bbd5e6cbd7" >
+		<db:select doc:name="Select" doc:id="349be8a7-671a-498d-889a-13357c74f6c6" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from Complaints]]></db:sql>
+		</db:select>
+		<parallel-foreach doc:name="Parallel For Each" doc:id="cf4a329d-146d-4329-90c2-fb42f7a75d0b">
+					<flow-ref doc:name="gatherComplaintsData" doc:id="956a547e-d2f6-4dcb-849c-a65743600c52" name="gatherData" />
+				</parallel-foreach>
+		<ee:transform doc:name="Transform Message" doc:id="c965ecdd-bb2f-4a96-868b-513776e06366">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+flatten(payload..payload)]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+	</flow>
+	<flow name="getComplaintByNumber" doc:id="fe5a5d8c-ba04-4329-91c8-27ceb8ee9978" >
+		<db:select doc:name="Select" doc:id="f3d3ac2b-8944-4f9a-8a44-082f04a9566a" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from Complaints where complaintNumber=:complaintNumber;]]></db:sql>
+			<db:input-parameters><![CDATA[#[{complaintNumber:vars.complaintsNumber}]]]></db:input-parameters>
+		</db:select>
+		<set-payload value="#[payload[0]]" doc:name="Set Payload" doc:id="988a123f-13c4-475b-824d-787305ba0a1e" />
+		<flow-ref doc:name="gatherComplaintsData" doc:id="f9656f72-9acf-4e17-876b-e11aa972f7ff" name="gatherData"/>
+	</flow>
+	<flow name="gatherData" doc:id="a325235b-2718-4c0b-a1d1-65e3b57c6d38" >
+		<set-variable value="#[message.payload.orderNumber]" doc:name="orderNumber" doc:id="1dd3d5a0-3b5a-46c7-a376-dd9ea2f1c7ad" variableName="orderNumber" />
+		<set-variable value="#[message.payload.productCode]" doc:name="productCode" doc:id="473475d8-ac8f-40b4-b865-ebcddf44151b" variableName="productCode"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="c07f7561-23a0-4eb3-85f6-727fd06802aa">
+					<route>
+						<flow-ref doc:name="orderConnector" doc:id="91cbfda1-2132-4b1f-a7fe-88a3e078dec4" name="getOrderByNumber" />
+					</route>
+					<route>
+						<flow-ref doc:name="orderDetailConncetor" doc:id="b90ab7d1-e650-409c-9fdc-ce6361cd4a5f" name="getOrderDetailsByNumber" />
+					</route>
+					<route>
+						<set-payload value="#[message.payload]" doc:name="Set Payload" doc:id="ae1f73d0-bd5e-47b8-ba8c-aa05d3b25d53" />
+					</route>
+			<route >
+				<flow-ref doc:name="productConnector" doc:id="3baa368e-2800-4bca-9336-f4c6337d9f07" name="getProductByNumber" />
+			</route>
+		</scatter-gather>
+		<set-variable value="#[flatten(payload..payload)]" doc:name="Set Variable" doc:id="1c2a02d1-90dc-4932-86fe-62d15341463d" variableName="details" />
+		<set-variable value="#[vars.details[0].customerNumber]" doc:name="Set Variable" doc:id="6e1e1b5f-d911-441d-a032-60de719df595" variableName="customerNumber"/>
+		<flow-ref doc:name="Flow Reference" doc:id="9db30321-2e30-431e-ae94-b02abcb981f9" name="getCustomerDetailsByNumber"/>
+		<ee:transform doc:name="Transform Message" doc:id="e67c85e6-ac09-4dbd-a4b8-c8b283349f84">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{	
+	complaintNumber: vars.details[2].complaintNumber,
+	complaintDescription: vars.details[2].complaintDescription,
+	active: vars.details[2].active,
+	customerDetails:{
+		customerNumber: payload[0].customerNumber,
+		customerName: payload[0].customerName,		
+		customerEmail: payload[0].Email		
+	},
+	orderDetails: {
+		orderId: vars.details[0].orderNumber,
+		orderDate: 	vars.details[0].orderDate			
+	},	
+	productDetails:  vars.details[1] default {} ++ productName: vars.details[3].productName
+	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postComplaint" doc:id="3eafd6a8-f0af-4240-8bd2-330573353fa2" >
+		<db:insert doc:name="Insert" doc:id="a109f0f5-b5dd-4557-ae02-efdf7b6dee16" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into Complaints (orderNumber,complaintDescription,productCode) values(:orderNumber,:complaintDescription,:productCode);]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{orderNumber:payload.orderNumber,complaintDescription:payload.complaintDescription,productCode:payload.productCode}]]]></db:input-parameters>
+		</db:insert>
+		<db:select doc:name="Select" doc:id="8e49f83a-49fb-4bcf-93c8-14741b36cf9a" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT *
+FROM Complaints ORDER BY complaintNumber DESC
+LIMIT 1]]></db:sql>
+		</db:select>
+		<set-payload value="#[payload[0]]" doc:name="Set Payload" doc:id="b1246e30-293d-47b4-be2a-6e577c277597" />
+		<flow-ref doc:name="gatherComplaintsData" doc:id="4d4ad2e8-0f01-4ec7-9af2-a4f461898b02" name="gatherData"/>
+		<set-variable value="#[payload.complaintNumber]" doc:name="Set Variable" doc:id="1464adbd-351f-4634-8157-749f664b154f" variableName="complaintId"/>
+		<ee:transform doc:name="Transform Message" doc:id="57d0cf1b-7200-4aea-ba50-299692caac58" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	fileName : payload.customerDetails.customerName ++ "_" ++ payload.complaintNumber as String ++ ".txt",
+	attachment : "Dear " ++ payload.customerDetails.customerName ++ " , Your complaint for Product " ++ payload.productDetails.productName as String ++ " placed on date " ++ payload.orderDetails.orderDate as String ++ " has been registered with complaint id : " ++ payload.complaintNumber as String++ ".As per your description the complaint registered is : " ++ payload.complaintDescription as String ++ ".Our representative will get in touch to resolve your complaints.Sorry for the inconvenience.Thanks.",
+	email: payload.customerDetails.customerEmail
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<email:send doc:name="Send" doc:id="b21b941a-9b09-4151-9a8c-9128e096b450" fromAddress="${email.from}" config-ref="Email_SMTP" subject="mulesoft">
+			<email:to-addresses >
+				<email:to-address value="#[payload.email]"/>
+				<email:to-address value="dungeon8888@gmail.com" />
+			</email:to-addresses>
+			<email:cc-addresses />
+			<email:bcc-addresses />
+			<email:reply-to-addresses />
+			<email:body encoding="UTF-8" contentType="text/html">
+				<email:content ><![CDATA[#[payload.attachment]]]></email:content>
+			</email:body>
+			<email:attachments ><![CDATA[#[%dw 2.0
+output text/plain
+---
+	"complaint.txt" : payload.attachment]]]></email:attachments>
+		</email:send>
+	</flow>
+	<flow name="cancelComplaint" doc:id="978fcabd-d6d7-46c1-a0fe-55d0c05aa0c0" >
+		<db:delete doc:name="Delete" doc:id="df57c25a-4574-4229-a917-42456ac75ace" config-ref="Database_Config">
+			<db:sql ><![CDATA[delete from Complaints where complaintNumber=:complaintNumber]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{complaintNumber:vars.complaintsNumber}]]]></db:input-parameters>
+		</db:delete>
+	</flow>
+	<flow name="updateComplaint" doc:id="c686f3a1-c745-4354-b092-a7ee71a436cf" >
+		<set-variable doc:name="Set Variable" doc:id="a14b66af-33d2-4d4d-a73a-05564b029cd6" variableName="detail" value="#[message.payload]"/>
+		<db:select doc:name="Select" doc:id="cffff3c1-2568-4482-bdad-03e1378d3e6f" config-ref="Database_Config">
+					<db:sql><![CDATA[select * from Complaints where complaintNumber=:complaintNumber;]]></db:sql>
+			<db:input-parameters><![CDATA[#[{complaintNumber:vars.complaintsNumber}]]]></db:input-parameters>
+				</db:select>
+		<set-payload value="#[payload[0]]" doc:name="Set Payload" doc:id="fe691c8c-8874-43da-a171-f8e73b1eda29" />
+		<flow-ref doc:name="gatherComplaintsData" doc:id="0222b942-33d8-4ad4-85e2-99a94a44932a" name="gatherData" />
+		<set-variable value="#[payload]" doc:name="Set Variable" doc:id="d4572a45-8f85-4555-8b14-1b91fdaec2a2" variableName="data"/>
+		<choice doc:name="Choice" doc:id="5b115e60-ca80-4c66-95ec-3d619b7b4f05">
+					<when expression="#[(payload.active == true or payload.active == 1) and vars.detail.active == false]">
+				<db:update doc:name="Update" doc:id="3e18cab2-553a-453d-ace1-44c51bb45959" config-ref="Database_Config">
+			<db:sql><![CDATA[update Complaints set active=:active where complaintNumber=:complaintNumber;]]></db:sql>
+			<db:input-parameters><![CDATA[#[{complaintNumber:vars.complaintsNumber,active:vars.detail.active}]]]></db:input-parameters>
+		</db:update>
+				<ee:transform doc:name="Transform Message" doc:id="707d7693-5dbb-4569-ac58-19083314057f">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	fileName : vars.data.customerDetails.customerName ++ "_" ++ vars.data.complaintNumber as String ++ ".txt",
+	attachment : "Dear " ++ vars.data.customerDetails.customerName as String ++ " , Your complaint for Product " ++ vars.data.productDetails.productName as String ++ " placed on date " ++ vars.data.orderDetails.orderDate as String ++ " registered with complaint id : " ++ vars.data.complaintNumber as String ++ " has been resolved.As per your description the complaint registered is : " ++ vars.data.complaintDescription as String ++ ".If you still have any issue please submit a complaint our representative will get in touch to resolve your complaints.Sorry for the inconvenience.Thanks."
+}
+
+]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+				<email:send doc:name="Send" doc:id="e2f910d3-3408-449c-a8cc-3379201df900" config-ref="Email_SMTP" fromAddress="${email.from}" subject="mulesoft">
+							<email:to-addresses>
+								<email:to-address value="#[vars.data.customerDetails.customerEmail]" />
+						<email:to-address value="dungeon8888@gmail.com" />
+							</email:to-addresses>
+							<email:cc-addresses />
+							<email:bcc-addresses />
+							<email:reply-to-addresses />
+					<email:body contentType="text/html">
+						<email:content ><![CDATA[#[payload.attachment]]]></email:content>
+							</email:body>
+					<email:attachments ><![CDATA[#[%dw 2.0
+output text/plain
+---
+	"complaint.txt" : payload.attachment]]]></email:attachments>
+						</email:send>
+				<ee:transform doc:name="Transform Message" doc:id="b2256846-614a-46ff-aaf5-7daa7a48cbc3">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Complaint resolved"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+					</when>
+					<when expression="#[(payload.active == false or payload.active == 0) and vars.detail.active == false]">
+				<ee:transform doc:name="Transform Message" doc:id="86924f06-0c32-480f-ac62-de5032e7f030">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Complaint invalid(already resolved)"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise>
+				<db:update doc:name="Update" doc:id="5a6bfe0b-8ec9-46e5-b10f-b4c2d576a27a" config-ref="Database_Config">
+							<db:sql><![CDATA[update Complaints set complaintDescription=:complaintDescription where complaintNumber=:complaintNumber;]]></db:sql>
+							<db:input-parameters><![CDATA[#[{complaintDescription:vars.detail.complaintDescription,complaintNumber:vars.complaintsNumber}]]]></db:input-parameters>
+						</db:update>
+				<ee:transform doc:name="Transform Message" doc:id="d1ccc472-656e-4f94-9f79-d1e7a1e0b928">
+					<ee:message>
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	filename : vars.data.customerDetails.customerName as String ++ vars.data.complaintNumber as String ++ ".txt",
+	attachment : "Dear " ++ vars.data.customerDetails.customerName as String ++ " , Your complaint for Product " ++ vars.data.productDetails.productName as String ++ " placed on date " ++ vars.data.orderDetails.orderDate as String ++ " registered with complaint id : " ++ vars.data.complaintNumber as String ++ " has been modified.As per your modification the complaint registered is : " ++ vars.detail.complaintDescription as String ++ ".Our representative will get in touch to resolve your complaints.Sorry for the inconvenience.Thanks."
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+					</ee:variables>
+				</ee:transform>
+				<email:send doc:name="Send" doc:id="a3ab4ac0-a888-48e8-a1e0-b9902fb471d9" config-ref="Email_SMTP" fromAddress="${email.from}" subject="mulesoft">
+							<email:to-addresses>
+								<email:to-address value="#[vars.data.customerDetails.customerEmail]" />
+						<email:to-address value="dungeon8888@gmail.com" />
+							</email:to-addresses>
+					<email:cc-addresses />
+					<email:bcc-addresses />
+					<email:body contentType="text/html">
+						<email:content ><![CDATA[#[payload.attachment]]]></email:content>
+							</email:body>
+					<email:attachments ><![CDATA[#[%dw 2.0
+output text/plain
+---
+	"complaint.txt" : payload.attachment]]]></email:attachments>
+						</email:send>
+				<ee:transform doc:name="Transform Message" doc:id="1cbf4603-d0d5-40de-b2c4-4c34b62f2fe6">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Complaint updated"
+
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+					</otherwise>
+				</choice>
+	</flow>
+	<flow name="getCustomerDetailsByNumber" doc:id="fd20aa0d-a118-4e0c-8221-0d8d98187b7d">
+		<customers:get-customers-by-customernumber doc:name="get customers by customerNumber" doc:id="dc0fc647-3c1d-4780-abba-e6a777750323" config-ref="Customers_Config" customernumber="#[vars.customerNumber]"/>
+	</flow>
+	<flow name="getOrderDetailsByNumber" doc:id="ac1ba04a-a0e7-451a-b747-3958cdf8ad96" >
+		<order-detail-api:get-orderdetail-by-ordernumber-productcode doc:name="get orderdetail by orderNumber&amp; productCode" doc:id="8eac3df9-b5f8-4cb7-a057-9feb4c925348" config-ref="OrderDetail_API_Config" order-number="#[vars.orderNumber]" product-code="#[vars.productCode]"/>
+	</flow>
+	<flow name="getOrderByNumber" doc:id="ed1042e2-1c12-4fce-88ff-fd1fdde9463f" >
+		<orders-api:get-order-by-oredernumber doc:name="get order by orederNumber" doc:id="65269d5b-5cf0-41fb-9a2f-e22975fad4ab" config-ref="Orders_API_Config" order-number="#[vars.orderNumber]"/>
+	</flow>
+	<flow name="getProductByNumber" doc:id="d436de08-b2fd-4e7c-ba9c-659d7eaab0ca" >
+		<products-system-api:getproductsbyid doc:name="getProductsById" doc:id="879c415e-2069-429b-b20e-b07e8eab47b3" config-ref="Products_System_API_Config" product-code="#[vars.productCode]"/>
+	</flow>
+</mule>

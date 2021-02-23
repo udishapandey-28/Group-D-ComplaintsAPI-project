@@ -1,0 +1,36 @@
+http:
+  port: "8081"
+db:
+  host: "35.223.25.190"
+  port: "3306"
+  username: "root"
+  password: "abcd"
+  database: "InfyServices"
+  
+customer:
+  host: "customers-api-project.us-e2.cloudhub.io"
+  port: "80"
+  protocol: "HTTP"
+  
+order:
+  host: "orders-api-project.us-e2.cloudhub.io"
+  port: "80"
+  protocol: "HTTP"
+  
+orderDetail:
+  host: "orderdetails-api-project.us-e2.cloudhub.io"
+  port: "80"
+  protocol: "HTTP"
+  
+product:
+  host: "products-api-project.us-e2.cloudhub.io"
+  port: "80"
+  protocol: "HTTP"
+  
+email:
+  host: "smtp.gmail.com"
+  port: "587"
+  from: "infyservices51@gmail.com"
+  password: "Getit*123"
+   
+  
